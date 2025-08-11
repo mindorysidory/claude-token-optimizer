@@ -1,4 +1,31 @@
-<!DOCTYPE html>
+// 영어 최적화 함수 (기존 로직 유지)
+        function optimizeEnglish(text) {
+            const englishOptimizations = {
+                'create': '➕',
+                'fix': '🐛',
+                'optimize': '⚡',
+                'analyze': '🔍',
+                'review': '👀',
+                'check': '✅',
+                'component': 'comp',
+                'function': 'fn',
+                'database': 'db',
+                'performance': 'perf',
+                'please': '',
+                'could you': '',
+                'can you': ''
+            };
+            
+            let result = text;
+            const sortedKeys = Object.keys(englishOptimizations).sort((a, b) => b.length - a.length);
+            
+            for (const key of sortedKeys) {
+                const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\') + '\\b', 'gi');
+                result = result.replace(regex, englishOptimizations[key]);
+            }
+            
+            return result.replace(/\s+/g, ' ').trim();
+        }<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
@@ -347,20 +374,11 @@
 
             <div class="result-card">
                 <div class="result-header">
-                    <span class="result-title" id="step2Title">Translated</span>
+                    <span class="result-title" id="step2Title">Claude Optimized</span>
                     <span class="token-count" id="step2Tokens">0 tokens</span>
                 </div>
                 <div class="result-content" id="step2Result"></div>
                 <button class="copy-btn" data-target="step2Result">Copy</button>
-            </div>
-
-            <div class="result-card">
-                <div class="result-header">
-                    <span class="result-title" id="step3Title">Optimized</span>
-                    <span class="token-count" id="step3Tokens">0 tokens</span>
-                </div>
-                <div class="result-content" id="step3Result"></div>
-                <button class="copy-btn" data-target="step3Result">Copy</button>
             </div>
         </div>
 
@@ -849,44 +867,85 @@
             convertText();
         }
 
-        // 이벤트 리스너
+        // 이벤트 리스너 (수정 및 강화!)
         document.addEventListener('DOMContentLoaded', function() {
-            // 언어 전환
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.addEventListener('click', () => switchLanguage(btn.dataset.lang));
+            console.log('DOM loaded, initializing...');
+            
+            // 언어 전환 이벤트
+            const langBtns = document.querySelectorAll('.lang-btn');
+            langBtns.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    console.log('Language button clicked:', this.dataset.lang);
+                    switchLanguage(this.dataset.lang);
+                });
             });
             
-            // 변환 버튼
-            document.getElementById('convertBtn').addEventListener('click', convertText);
-            
-            // 엔터키 (Ctrl+Enter)
-            document.getElementById('commandInput').addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && e.ctrlKey) {
+            // 변환 버튼 이벤트 (여러 방법으로 등록)
+            const convertBtn = document.getElementById('convertBtn');
+            if (convertBtn) {
+                // 방법 1: addEventListener
+                convertBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Convert button clicked via addEventListener');
                     convertText();
-                }
-            });
+                });
+                
+                // 방법 2: onclick (백업)
+                convertBtn.onclick = function(e) {
+                    e.preventDefault();
+                    console.log('Convert button clicked via onclick');
+                    convertText();
+                };
+            } else {
+                console.error('Convert button not found!');
+            }
             
-            // 복사 버튼
+            // 엔터키 이벤트
+            const commandInput = document.getElementById('commandInput');
+            if (commandInput) {
+                commandInput.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter' && e.ctrlKey) {
+                        e.preventDefault();
+                        console.log('Ctrl+Enter pressed');
+                        convertText();
+                    }
+                });
+            }
+            
+            // 복사 버튼 이벤트 (이벤트 위임 사용)
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('copy-btn')) {
+                    e.preventDefault();
                     const target = e.target.dataset.target;
-                    const text = document.getElementById(target).textContent;
-                    copyToClipboard(text, e.target);
+                    const textElement = document.getElementById(target);
+                    if (textElement) {
+                        const text = textElement.textContent;
+                        console.log('Copy button clicked, text:', text);
+                        copyToClipboard(text, e.target);
+                    }
                 }
             });
             
-            // 예시 클릭
+            // 예시 클릭 이벤트 (이벤트 위임)
             document.addEventListener('click', function(e) {
                 if (e.target.classList.contains('example-item')) {
-                    loadExample(e.target.dataset.text);
+                    e.preventDefault();
+                    const text = e.target.dataset.text;
+                    console.log('Example clicked:', text);
+                    loadExample(text);
                 }
             });
             
             // 초기 예시 로드
             updateExamples();
             
-            console.log('Claude Token Optimizer loaded successfully! 🚀');
+            console.log('Claude Token Optimizer initialized successfully! 🚀');
         });
+
+        // 전역 함수로도 등록 (백업)
+        window.convertText = convertText;
+        window.switchLanguage = switchLanguage;
+        window.loadExample = loadExample;
     </script>
 </body>
 </html>
