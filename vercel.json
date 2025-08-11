@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "name": "claude-token-optimizer",
+  "name": "claude-token-saver",
   "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
@@ -26,19 +26,13 @@
       ]
     },
     {
-      "source": "/(.*\\.(css|js|html|json|ico|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot))",
+      "source": "/static/(.*)",
       "headers": [
         {
           "key": "Cache-Control",
           "value": "public, max-age=31536000, immutable"
         }
       ]
-    }
-  ],
-  "redirects": [
-    {
-      "source": "/home",
-      "destination": "/"
     }
   ]
 }
