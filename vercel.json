@@ -1,18 +1,8 @@
 {
   "version": 2,
   "name": "claude-token-optimizer",
-  "builds": [
-    {
-      "src": "index.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
+  "cleanUrls": true,
+  "trailingSlash": false,
   "headers": [
     {
       "source": "/(.*)",
@@ -32,10 +22,6 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
-        },
-        {
-          "key": "Permissions-Policy",
-          "value": "camera=(), microphone=(), geolocation=()"
         }
       ]
     },
@@ -54,7 +40,5 @@
       "source": "/home",
       "destination": "/"
     }
-  ],
-  "cleanUrls": true,
-  "trailingSlash": false
+  ]
 }
