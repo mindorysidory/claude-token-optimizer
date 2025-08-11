@@ -1,96 +1,30 @@
-// 영어 최적화 함수 (기존 로직 유지)
-        function optimizeEnglish(text) {
-            const englishOptimizations = {
-                'create': '➕',
-                'fix': '🐛',
-                'optimize': '⚡',
-                'analyze': '🔍',
-                'review': '👀',
-                'check': '✅',
-                'component': 'comp',
-                'function': 'fn',
-                'database': 'db',
-                'performance': 'perf',
-                'please': '',
-                'could you': '',
-                'can you': ''
-            };
-            
-            let result = text;
-            const sortedKeys = Object.keys(englishOptimizations).sort((a, b) => b.length - a.length);
-            
-            for (const key of sortedKeys) {
-                const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\') + '\\b', 'gi');
-                result = result.replace(regex, englishOptimizations[key]);
-            }
-            
-            return result.replace(/\s+/g, ' ').trim();
-        }<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Claude Token Optimizer</title>
-    <meta name="description" content="Convert Korean commands to token-efficient Claude prompts. Save 50-80% tokens.">
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        :root {
-            --bg: #fafafa;
-            --card: #ffffff;
-            --border: #e5e5e5;
-            --gray: #666666;
-            --black: #000000;
-            --accent: #0070f3;
-            --success: #0070f3;
-            --radius: 8px;
-            --shadow: 0 4px 14px 0 rgba(0,0,0,.1);
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
-            background: var(--bg);
-            color: var(--black);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: #fafafa;
+            color: #000;
             line-height: 1.6;
-            font-size: 16px;
         }
         
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 40px 20px;
-        }
+        .container { max-width: 800px; margin: 0 auto; padding: 40px 20px; }
         
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-        }
-        
-        .header h1 {
-            font-size: 48px;
-            font-weight: 800;
-            color: var(--black);
-            margin-bottom: 16px;
-            letter-spacing: -0.05em;
-        }
-        
-        .header p {
-            font-size: 18px;
-            color: var(--gray);
-            margin-bottom: 24px;
-        }
+        .header { text-align: center; margin-bottom: 60px; }
+        .header h1 { font-size: 48px; font-weight: 800; margin-bottom: 16px; }
+        .header p { font-size: 18px; color: #666; margin-bottom: 24px; }
         
         .lang-switch {
             display: inline-flex;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
             overflow: hidden;
         }
         
@@ -98,35 +32,25 @@
             padding: 8px 16px;
             border: none;
             background: transparent;
-            color: var(--gray);
+            color: #666;
             cursor: pointer;
             font-size: 14px;
-            transition: all 0.2s ease;
         }
         
-        .lang-btn.active {
-            background: var(--black);
-            color: white;
-        }
+        .lang-btn.active { background: #000; color: white; }
         
-        .lang-btn:hover:not(.active) {
-            background: var(--bg);
-        }
-        
-        /* Input Section */
         .input-section {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
             padding: 24px;
             margin-bottom: 32px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 14px 0 rgba(0,0,0,.1);
         }
         
         .input-label {
             font-size: 14px;
             font-weight: 500;
-            color: var(--black);
             margin-bottom: 8px;
             display: block;
         }
@@ -135,65 +59,40 @@
             width: 100%;
             min-height: 120px;
             padding: 16px;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            background: var(--bg);
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            background: #fafafa;
             font-family: inherit;
             font-size: 16px;
-            color: var(--black);
             resize: vertical;
-            transition: border-color 0.2s ease;
         }
         
-        .input-area:focus {
-            outline: none;
-            border-color: var(--accent);
-        }
-        
-        .input-area::placeholder {
-            color: var(--gray);
-        }
+        .input-area:focus { outline: none; border-color: #0070f3; }
         
         .convert-btn {
             width: 100%;
             padding: 16px;
             margin-top: 16px;
-            background: var(--black);
+            background: #000;
             color: white;
             border: none;
-            border-radius: var(--radius);
+            border-radius: 8px;
             font-size: 16px;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
         
-        .convert-btn:hover {
-            background: #333;
-        }
+        .convert-btn:hover { background: #333; }
         
-        .convert-btn:disabled {
-            background: var(--gray);
-            cursor: not-allowed;
-        }
-        
-        /* Results */
-        .results {
-            display: none;
-            gap: 24px;
-        }
-        
-        .results.show {
-            display: flex;
-            flex-direction: column;
-        }
+        .results { display: none; gap: 24px; flex-direction: column; }
+        .results.show { display: flex; }
         
         .result-card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
             padding: 24px;
-            box-shadow: var(--shadow);
+            box-shadow: 0 4px 14px 0 rgba(0,0,0,.1);
         }
         
         .result-header {
@@ -206,28 +105,26 @@
         .result-title {
             font-size: 14px;
             font-weight: 600;
-            color: var(--black);
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
         
         .token-count {
             font-size: 12px;
-            color: var(--gray);
-            background: var(--bg);
+            color: #666;
+            background: #fafafa;
             padding: 4px 8px;
             border-radius: 4px;
         }
         
         .result-content {
-            font-family: "SF Mono", Monaco, "Cascadia Code", "Roboto Mono", Consolas, "Courier New", monospace;
+            font-family: "SF Mono", Monaco, monospace;
             font-size: 14px;
             line-height: 1.5;
-            color: var(--black);
-            background: var(--bg);
+            background: #fafafa;
             padding: 16px;
-            border-radius: var(--radius);
-            border: 1px solid var(--border);
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
             margin-bottom: 12px;
             word-break: break-word;
         }
@@ -235,138 +132,69 @@
         .copy-btn {
             padding: 8px 16px;
             background: transparent;
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            color: var(--gray);
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            color: #666;
             font-size: 12px;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
         
-        .copy-btn:hover {
-            border-color: var(--black);
-            color: var(--black);
-        }
+        .copy-btn:hover { border-color: #000; color: #000; }
+        .copy-btn.copied { background: #000; color: white; border-color: #000; }
         
-        .copy-btn.copied {
-            background: var(--black);
-            color: white;
-            border-color: var(--black);
-        }
+        .examples { margin-top: 48px; }
+        .examples h3 { font-size: 18px; font-weight: 600; margin-bottom: 16px; }
         
-        /* Examples */
-        .examples {
-            margin-top: 48px;
-        }
-        
-        .examples h3 {
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--black);
-            margin-bottom: 16px;
-        }
-        
-        .example-grid {
-            display: grid;
-            gap: 8px;
-        }
+        .example-grid { display: grid; gap: 8px; }
         
         .example-item {
             padding: 12px 16px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
             font-size: 14px;
-            color: var(--gray);
+            color: #666;
             cursor: pointer;
-            transition: all 0.2s ease;
         }
         
-        .example-item:hover {
-            border-color: var(--black);
-            color: var(--black);
-        }
+        .example-item:hover { border-color: #000; color: #000; }
         
-        /* Footer */
         .footer {
             margin-top: 80px;
             padding-top: 32px;
-            border-top: 1px solid var(--border);
+            border-top: 1px solid #e5e5e5;
             text-align: center;
-            color: var(--gray);
+            color: #666;
             font-size: 14px;
-        }
-        
-        .footer a {
-            color: var(--black);
-            text-decoration: none;
-        }
-        
-        .footer a:hover {
-            text-decoration: underline;
-        }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .container {
-                padding: 24px 16px;
-            }
-            
-            .header h1 {
-                font-size: 36px;
-            }
-            
-            .header p {
-                font-size: 16px;
-            }
-        }
-        
-        /* Animations */
-        .fade-in {
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(8px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>Claude Token Optimizer</h1>
-            <p id="subtitle">Convert Korean commands to token-efficient Claude prompts</p>
+            <p id="subtitle">한국어 명령어를 Claude 최적화 프롬프트로 직접 변환</p>
             
             <div class="lang-switch">
-                <button class="lang-btn active" data-lang="ko">한국어</button>
-                <button class="lang-btn" data-lang="en">English</button>
+                <button class="lang-btn active" id="koBtn">한국어</button>
+                <button class="lang-btn" id="enBtn">English</button>
             </div>
         </div>
 
-        <!-- Input -->
         <div class="input-section">
-            <label class="input-label" id="inputLabel">Enter your command</label>
+            <label class="input-label" id="inputLabel">명령어를 입력하세요</label>
             <textarea 
                 class="input-area" 
                 id="commandInput" 
                 placeholder="예: 리액트로 로그인 페이지 만들어주세요"
             ></textarea>
-            <button class="convert-btn" id="convertBtn">Convert</button>
+            <button class="convert-btn" id="convertBtn">최적화하기</button>
         </div>
 
-        <!-- Results -->
         <div class="results" id="results">
             <div class="result-card">
                 <div class="result-header">
-                    <span class="result-title" id="step1Title">Original</span>
+                    <span class="result-title" id="step1Title">원본</span>
                     <span class="token-count" id="step1Tokens">0 tokens</span>
                 </div>
                 <div class="result-content" id="step1Result"></div>
@@ -374,34 +202,28 @@
 
             <div class="result-card">
                 <div class="result-header">
-                    <span class="result-title" id="step2Title">Claude Optimized</span>
+                    <span class="result-title" id="step2Title">Claude 최적화</span>
                     <span class="token-count" id="step2Tokens">0 tokens</span>
                 </div>
                 <div class="result-content" id="step2Result"></div>
-                <button class="copy-btn" data-target="step2Result">Copy</button>
+                <button class="copy-btn" id="copyBtn">Copy</button>
             </div>
         </div>
 
-        <!-- Examples -->
         <div class="examples">
-            <h3 id="examplesTitle">Examples</h3>
-            <div class="example-grid" id="exampleGrid">
-                <!-- 동적 생성 -->
-            </div>
+            <h3 id="examplesTitle">예시</h3>
+            <div class="example-grid" id="exampleGrid"></div>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
-            <p>Made for developers who want to save tokens • <a href="https://github.com" target="_blank">GitHub</a></p>
+            <p>Made for developers who want to save tokens</p>
         </div>
     </div>
 
     <script>
-        // 현재 언어
         let currentLang = 'ko';
         
-        // 번역 텍스트
-        const translations = {
+        const texts = {
             ko: {
                 subtitle: '한국어 명령어를 Claude 최적화 프롬프트로 직접 변환',
                 inputLabel: '명령어를 입력하세요',
@@ -436,9 +258,7 @@
             }
         };
 
-        // 한글 → Claude 최적화 직접 변환 사전
-        const koreanToOptimized = {
-            // 기본 동작
+        const dictionary = {
             '만들어주세요': '➕',
             '만들어줘': '➕',
             '생성해주세요': '➕',
@@ -455,16 +275,12 @@
             '검토해줘': '👀',
             '확인해주세요': '✅',
             '확인해줘': '✅',
-            '배포해주세요': '🚀',
-            '배포해줘': '🚀',
             
-            // 기술 용어 (한글 → 영어 축약)
             '리액트로': 'React',
             '리액트를': 'React',
             '리액트': 'React',
             '뷰': 'Vue',
             '넥스트': 'Next.js',
-            '넥스트제이에스': 'Next.js',
             '타입스크립트로': 'TS',
             '타입스크립트를': 'TS',
             '타입스크립트': 'TS',
@@ -479,10 +295,7 @@
             '함수': 'fn',
             '데이터베이스를': 'db',
             '데이터베이스': 'db',
-            '라이브러리를': 'lib',
-            '라이브러리': 'lib',
             
-            // 기능/UI 요소
             '로그인을': 'login',
             '로그인': 'login',
             '회원가입을': 'signup',
@@ -493,67 +306,35 @@
             '모달': 'modal',
             '버튼을': 'btn',
             '버튼': 'btn',
-            '폼을': 'form',
-            '폼': 'form',
-            '테이블을': 'table',
-            '테이블': 'table',
-            
-            // 상태/문제
             '버그가': 'bug',
             '버그를': 'bug',
             '버그': 'bug',
-            '에러가': 'error',
-            '에러를': 'error',
-            '에러': 'error',
-            '문제가': 'issue',
-            '문제를': 'issue',
-            '문제': 'issue',
-            
-            // 성능/품질
             '성능을': 'perf',
             '성능': 'perf',
-            '속도를': 'speed',
-            '속도': 'speed',
-            '품질을': 'quality',
-            '품질': 'quality',
             
-            // 개발 도구
             'API를': 'API',
             'API': 'API',
-            '엔드포인트를': 'endpoint',
-            '엔드포인트': 'endpoint',
-            '훅을': 'hook',
-            '훅': 'hook',
             'useState를': 'useState',
             'useState': 'useState',
             'useEffect를': 'useEffect',
             'useEffect': 'useEffect',
             
-            // 복합 표현
             '리액트 컴포넌트를': 'React comp',
             '리액트 컴포넌트': 'React comp',
             '로그인 페이지를': 'login page',
             '로그인 페이지': 'login page',
-            '회원가입 페이지를': 'signup page',
-            '회원가입 페이지': 'signup page',
             '유효성 검사를': 'validation',
             '유효성 검사': 'validation',
             '반응형으로': 'responsive',
             '반응형': 'responsive',
-            '다크모드를': 'dark mode',
-            '다크모드': 'dark mode',
             
-            // 연결어/부사
             '그리고': '+',
             '또한': '+',
             '포함해서': '+',
             '포함하고': '+',
             '사용해서': 'w/',
             '사용하고': 'w/',
-            '활용해서': 'w/',
-            '활용하고': 'w/',
             
-            // 조사 제거 (짧은 것들)
             '를': '',
             '을': '',
             '가': '',
@@ -566,84 +347,19 @@
             '과': '',
             '의': '',
             '도': '',
-            '만': '',
-            '부터': '',
-            '까지': '',
             
-            // 불필요한 표현
             '해주세요': '',
             '해줘': '',
             '주세요': '',
             '요': '',
             '좀': '',
             '한번': '',
-            '잠깐': '',
-            '혹시': '',
-            '만약': '',
-            '일단': '',
-            '우선': '',
-            '먼저': '',
-            '그냥': '',
             '있는': '',
             '있어요': '',
-            '있다': '',
             '같은': '',
-            '같이': '',
             '처럼': ''
         };
 
-        // 최적화 규칙 (대폭 확장!)
-        const optimizations = {
-            // 기본 동작
-            'create': '➕',
-            'fix': '🐛', 
-            'optimize': '⚡',
-            'analyze': '🔍',
-            'review': '👀',
-            'check': '✅',
-            'deploy': '🚀',
-            'install': '📦',
-            
-            // 기술 용어
-            'component': 'comp',
-            'function': 'fn',
-            'database': 'db',
-            'performance': 'perf',
-            'library': 'lib',
-            'checklist': 'list',
-            
-            // 복합 표현
-            'React component': 'React comp',
-            'login page': 'login',
-            'signup page': 'signup',
-            'for users': 'for users',
-            'need to check': 'check',
-            'things like': 'like',
-            'review check': 'review',
-            'used properly': 'used ok',
-            'this kind of': 'these',
-            'that kind of': 'those',
-            
-            // 불필요한 단어들
-            'please': '',
-            'could you': '',
-            'can you': '',
-            'I want': '',
-            'I need': '',
-            'just': '',
-            'first': '',
-            'whether': 'if',
-            'exists': '',
-            'like': '',
-            'and': '+',
-            'or': '/',
-            'include': '+',
-            'use': 'w/',
-            'with': 'w/',
-            'number': '#'
-        };
-
-        // 토큰 계산
         function calculateTokens(text) {
             const korean = (text.match(/[가-힣]/g) || []).length;
             const english = (text.match(/[a-zA-Z]+/g) || []).length;
@@ -651,129 +367,52 @@
             return Math.round(korean * 2.5 + english * 0.75 + other * 0.5);
         }
 
-        // 번역 함수 (완전히 개선!)
-        function translate(text) {
+        function optimizeText(text) {
             let result = text;
             
-            // 1단계: 긴 키워드부터 처리 (순서가 매우 중요!)
             const sortedKeys = Object.keys(dictionary).sort((a, b) => b.length - a.length);
             
             for (const key of sortedKeys) {
                 if (key.trim() && dictionary[key] !== undefined) {
-                    // 정확한 매칭을 위해 단어 경계 고려
-                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\        // 번역 함수
-        function translate(text) {
-            let result = text.toLowerCase();
-            
-            // 긴 키워드부터 처리
-            const sortedKeys = Object.keys(dictionary).sort((a, b) => b.length - a.length);
-            
-            for (const key of sortedKeys) {
-                if (dictionary[key] !== undefined) {
-                    const regex = new RegExp(key, 'gi');
+                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
                     result = result.replace(regex, dictionary[key]);
                 }
             }
             
-            return result.replace(/\s+/g, ' ').trim();
-        }'), 'gi');
-                    result = result.replace(regex, dictionary[key]);
-                }
-            }
-            
-            // 2단계: 숫자 처리
-            result = result.replace(/(\d+)\s*제/g, '$1');
-            result = result.replace(/(\d+)\s*번/g, '$1');
-            result = result.replace(/(\d+)\s*개/g, '$1');
-            
-            // 3단계: 연속된 공백 정리
-            result = result.replace(/\s+/g, ' ');
-            
-            // 4단계: 양쪽 공백 제거
-            result = result.trim();
-            
-            // 5단계: 특수 패턴 후처리
-            result = result.replace(/\s*,\s*/g, ', ');
-            result = result.replace(/\s*\.\s*/g, '. ');
-            
-            return result;
-        }
-
-        // 최적화 함수 (개선!)
-        function optimize(text) {
-            let result = text;
-            
-            // 1단계: 긴 표현부터 처리
-            const sortedOpts = Object.keys(optimizations).sort((a, b) => b.length - a.length);
-            
-            for (const key of sortedOpts) {
-                if (key.trim() && optimizations[key] !== undefined) {
-                    // 단어 경계를 고려한 정확한 매칭
-                    const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\        // 최적화 함수
-        function optimize(text) {
-            let result = text;
-            
-            const sortedOpts = Object.keys(optimizations).sort((a, b) => b.length - a.length);
-            
-            for (const key of sortedOpts) {
-                const regex = new RegExp('\\b' + key + '\\b', 'gi');
-                result = result.replace(regex, optimizations[key]);
-            }
-            
-            return result.replace(/\s+/g, ' ').trim();
-        }') + '\\b', 'gi');
-                    result = result.replace(regex, optimizations[key]);
-                }
-            }
-            
-            // 2단계: 연속된 기호 정리
-            result = result.replace(/\+\s*\+/g, '+');
             result = result.replace(/\s*\+\s*/g, ' + ');
-            result = result.replace(/\s*\/\s*/g, '/');
             result = result.replace(/\s*w\/\s*/g, ' w/ ');
-            
-            // 3단계: 불필요한 공백 제거
             result = result.replace(/\s+/g, ' ');
-            result = result.trim();
-            
-            // 4단계: 시작 부분 정리
             result = result.replace(/^\+\s*/, '');
-            result = result.replace(/^w\/\s*/, '');
             
-            return result;
+            return result.trim();
         }
 
-        // 메인 변환 함수 (2단계로 단순화!)
         function convertText() {
             const input = document.getElementById('commandInput').value.trim();
             
             if (!input) {
-                alert(currentLang === 'ko' ? '명령어를 입력하세요' : 'Please enter a command');
+                alert('명령어를 입력하세요!');
                 return;
             }
 
             const btn = document.getElementById('convertBtn');
             const originalText = btn.textContent;
             
-            btn.textContent = currentLang === 'ko' ? '변환 중...' : 'Converting...';
+            btn.textContent = '변환 중...';
             btn.disabled = true;
 
             setTimeout(() => {
                 try {
-                    // 1단계: 원본
                     const step1 = input;
                     const tokens1 = calculateTokens(step1);
 
-                    // 2단계: Claude 최적화 (한글에서 바로!)
-                    const step2 = currentLang === 'ko' ? optimizeKorean(step1) : optimizeEnglish(step1);
+                    const step2 = optimizeText(step1);
                     const tokens2 = calculateTokens(step2);
 
-                    // 결과 표시 (2단계만)
                     showResults(step1, step2, tokens1, tokens2);
-
                 } catch (error) {
                     console.error('Error:', error);
-                    alert(currentLang === 'ko' ? '변환 중 오류가 발생했습니다' : 'An error occurred');
+                    alert('변환 중 오류가 발생했습니다.');
                 } finally {
                     btn.textContent = originalText;
                     btn.disabled = false;
@@ -781,37 +420,34 @@
             }, 300);
         }
 
-        // 결과 표시
-        function showResults(step1, step2, step3, tokens1, tokens2, tokens3) {
+        function showResults(step1, step2, tokens1, tokens2) {
             document.getElementById('step1Result').textContent = step1;
             document.getElementById('step2Result').textContent = step2;
-            document.getElementById('step3Result').textContent = step3;
 
-            const saving2 = Math.round(((tokens1 - tokens2) / tokens1) * 100);
-            const saving3 = Math.round(((tokens1 - tokens3) / tokens1) * 100);
+            const saving = Math.round(((tokens1 - tokens2) / tokens1) * 100);
 
-            document.getElementById('step1Tokens').textContent = `${tokens1} tokens`;
-            document.getElementById('step2Tokens').textContent = `${tokens2} tokens (${saving2}% saved)`;
-            document.getElementById('step3Tokens').textContent = `${tokens3} tokens (${saving3}% saved)`;
+            document.getElementById('step1Tokens').textContent = tokens1 + ' tokens';
+            document.getElementById('step2Tokens').textContent = tokens2 + ' tokens (' + saving + '% saved)';
 
             const results = document.getElementById('results');
-            results.classList.add('show', 'fade-in');
+            results.classList.add('show');
             results.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
-        // 복사 함수
-        function copyToClipboard(text, button) {
-            navigator.clipboard.writeText(text).then(() => {
-                const originalText = button.textContent;
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
-                
-                setTimeout(() => {
-                    button.textContent = 'Copy';
-                    button.classList.remove('copied');
-                }, 1000);
-            }).catch(() => {
-                // 폴백
+        function copyToClipboard() {
+            const text = document.getElementById('step2Result').textContent;
+            const btn = document.getElementById('copyBtn');
+            
+            if (navigator.clipboard) {
+                navigator.clipboard.writeText(text).then(() => {
+                    btn.textContent = 'Copied!';
+                    btn.classList.add('copied');
+                    setTimeout(() => {
+                        btn.textContent = 'Copy';
+                        btn.classList.remove('copied');
+                    }, 1000);
+                });
+            } else {
                 const textarea = document.createElement('textarea');
                 textarea.value = text;
                 document.body.appendChild(textarea);
@@ -819,133 +455,71 @@
                 document.execCommand('copy');
                 document.body.removeChild(textarea);
                 
-                button.textContent = 'Copied!';
-                button.classList.add('copied');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
                 setTimeout(() => {
-                    button.textContent = 'Copy';
-                    button.classList.remove('copied');
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
                 }, 1000);
-            });
+            }
         }
 
-        // 언어 전환
         function switchLanguage(lang) {
             currentLang = lang;
             
-            // 버튼 상태 업데이트
-            document.querySelectorAll('.lang-btn').forEach(btn => {
-                btn.classList.toggle('active', btn.dataset.lang === lang);
-            });
+            document.getElementById('koBtn').classList.remove('active');
+            document.getElementById('enBtn').classList.remove('active');
+            document.getElementById(lang + 'Btn').classList.add('active');
             
-            // 텍스트 업데이트
-            const texts = translations[lang];
-            document.getElementById('subtitle').textContent = texts.subtitle;
-            document.getElementById('inputLabel').textContent = texts.inputLabel;
-            document.getElementById('commandInput').placeholder = texts.placeholder;
-            document.getElementById('convertBtn').textContent = texts.convertBtn;
-            document.getElementById('step1Title').textContent = texts.step1Title;
-            document.getElementById('step2Title').textContent = texts.step2Title;
-            document.getElementById('examplesTitle').textContent = texts.examplesTitle;
+            const t = texts[lang];
+            document.getElementById('subtitle').textContent = t.subtitle;
+            document.getElementById('inputLabel').textContent = t.inputLabel;
+            document.getElementById('commandInput').placeholder = t.placeholder;
+            document.getElementById('convertBtn').textContent = t.convertBtn;
+            document.getElementById('step1Title').textContent = t.step1Title;
+            document.getElementById('step2Title').textContent = t.step2Title;
+            document.getElementById('examplesTitle').textContent = t.examplesTitle;
             
-            // 예시 업데이트
             updateExamples();
         }
 
-        // 예시 업데이트
         function updateExamples() {
             const grid = document.getElementById('exampleGrid');
-            const examples = translations[currentLang].examples;
+            const examples = texts[currentLang].examples;
             
-            grid.innerHTML = examples.map(example => 
-                `<div class="example-item" data-text="${example}">${example}</div>`
-            ).join('');
+            grid.innerHTML = '';
+            for (let i = 0; i < examples.length; i++) {
+                const div = document.createElement('div');
+                div.className = 'example-item';
+                div.textContent = examples[i];
+                div.onclick = function() {
+                    loadExample(examples[i]);
+                };
+                grid.appendChild(div);
+            }
         }
 
-        // 예시 로드
         function loadExample(text) {
             document.getElementById('commandInput').value = text;
             convertText();
         }
 
-        // 이벤트 리스너 (수정 및 강화!)
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('DOM loaded, initializing...');
+            document.getElementById('convertBtn').onclick = convertText;
+            document.getElementById('copyBtn').onclick = copyToClipboard;
+            document.getElementById('koBtn').onclick = function() { switchLanguage('ko'); };
+            document.getElementById('enBtn').onclick = function() { switchLanguage('en'); };
             
-            // 언어 전환 이벤트
-            const langBtns = document.querySelectorAll('.lang-btn');
-            langBtns.forEach(btn => {
-                btn.addEventListener('click', function() {
-                    console.log('Language button clicked:', this.dataset.lang);
-                    switchLanguage(this.dataset.lang);
-                });
-            });
-            
-            // 변환 버튼 이벤트 (여러 방법으로 등록)
-            const convertBtn = document.getElementById('convertBtn');
-            if (convertBtn) {
-                // 방법 1: addEventListener
-                convertBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    console.log('Convert button clicked via addEventListener');
+            document.getElementById('commandInput').addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
                     convertText();
-                });
-                
-                // 방법 2: onclick (백업)
-                convertBtn.onclick = function(e) {
-                    e.preventDefault();
-                    console.log('Convert button clicked via onclick');
-                    convertText();
-                };
-            } else {
-                console.error('Convert button not found!');
-            }
-            
-            // 엔터키 이벤트
-            const commandInput = document.getElementById('commandInput');
-            if (commandInput) {
-                commandInput.addEventListener('keydown', function(e) {
-                    if (e.key === 'Enter' && e.ctrlKey) {
-                        e.preventDefault();
-                        console.log('Ctrl+Enter pressed');
-                        convertText();
-                    }
-                });
-            }
-            
-            // 복사 버튼 이벤트 (이벤트 위임 사용)
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('copy-btn')) {
-                    e.preventDefault();
-                    const target = e.target.dataset.target;
-                    const textElement = document.getElementById(target);
-                    if (textElement) {
-                        const text = textElement.textContent;
-                        console.log('Copy button clicked, text:', text);
-                        copyToClipboard(text, e.target);
-                    }
                 }
             });
             
-            // 예시 클릭 이벤트 (이벤트 위임)
-            document.addEventListener('click', function(e) {
-                if (e.target.classList.contains('example-item')) {
-                    e.preventDefault();
-                    const text = e.target.dataset.text;
-                    console.log('Example clicked:', text);
-                    loadExample(text);
-                }
-            });
-            
-            // 초기 예시 로드
             updateExamples();
             
-            console.log('Claude Token Optimizer initialized successfully! 🚀');
+            console.log('Claude Token Optimizer loaded successfully!');
         });
-
-        // 전역 함수로도 등록 (백업)
-        window.convertText = convertText;
-        window.switchLanguage = switchLanguage;
-        window.loadExample = loadExample;
     </script>
 </body>
 </html>
