@@ -385,13 +385,12 @@
         // 번역 텍스트
         const translations = {
             ko: {
-                subtitle: '한국어 명령어를 토큰 효율적인 Claude 프롬프트로 변환',
+                subtitle: '한국어 명령어를 Claude 최적화 프롬프트로 직접 변환',
                 inputLabel: '명령어를 입력하세요',
                 placeholder: '예: 리액트로 로그인 페이지 만들어주세요',
-                convertBtn: '변환하기',
+                convertBtn: '최적화하기',
                 step1Title: '원본',
-                step2Title: '번역됨',
-                step3Title: '최적화됨',
+                step2Title: 'Claude 최적화',
                 examplesTitle: '예시',
                 examples: [
                     '리액트로 로그인 페이지 만들어주세요',
@@ -402,13 +401,12 @@
                 ]
             },
             en: {
-                subtitle: 'Convert Korean commands to token-efficient Claude prompts',
+                subtitle: 'Convert English commands to Claude-optimized prompts',
                 inputLabel: 'Enter your command',
                 placeholder: 'Example: Create a React login page',
-                convertBtn: 'Convert',
+                convertBtn: 'Optimize',
                 step1Title: 'Original',
-                step2Title: 'Translated',
-                step3Title: 'Optimized',
+                step2Title: 'Claude Optimized',
                 examplesTitle: 'Examples',
                 examples: [
                     'Create a React login page',
@@ -420,86 +418,211 @@
             }
         };
 
-        // 번역 사전
-        const dictionary = {
-            // 동작어
-            '만들어주세요': 'create',
-            '만들어줘': 'create',
-            '생성해주세요': 'create',
-            '생성해줘': 'create',
-            '고쳐주세요': 'fix',
-            '고쳐줘': 'fix',
-            '수정해주세요': 'fix',
-            '수정해줘': 'fix',
-            '최적화해주세요': 'optimize',
-            '최적화해줘': 'optimize',
+        // 한글 → Claude 최적화 직접 변환 사전
+        const koreanToOptimized = {
+            // 기본 동작
+            '만들어주세요': '➕',
+            '만들어줘': '➕',
+            '생성해주세요': '➕',
+            '생성해줘': '➕',
+            '고쳐주세요': '🐛',
+            '고쳐줘': '🐛',
+            '수정해주세요': '🐛',
+            '수정해줘': '🐛',
+            '최적화해주세요': '⚡',
+            '최적화해줘': '⚡',
+            '분석해주세요': '🔍',
+            '분석해줘': '🔍',
+            '검토해주세요': '👀',
+            '검토해줘': '👀',
+            '확인해주세요': '✅',
+            '확인해줘': '✅',
+            '배포해주세요': '🚀',
+            '배포해줘': '🚀',
             
-            // 기술용어
+            // 기술 용어 (한글 → 영어 축약)
             '리액트로': 'React',
             '리액트를': 'React',
             '리액트': 'React',
             '뷰': 'Vue',
             '넥스트': 'Next.js',
-            '타입스크립트': 'TypeScript',
-            '자바스크립트': 'JavaScript',
-            '컴포넌트를': 'component',
-            '컴포넌트': 'component',
+            '넥스트제이에스': 'Next.js',
+            '타입스크립트로': 'TS',
+            '타입스크립트를': 'TS',
+            '타입스크립트': 'TS',
+            '자바스크립트로': 'JS',
+            '자바스크립트를': 'JS',
+            '자바스크립트': 'JS',
+            '컴포넌트를': 'comp',
+            '컴포넌트': 'comp',
             '페이지를': 'page',
             '페이지': 'page',
-            '함수를': 'function',
-            '함수': 'function',
+            '함수를': 'fn',
+            '함수': 'fn',
+            '데이터베이스를': 'db',
+            '데이터베이스': 'db',
+            '라이브러리를': 'lib',
+            '라이브러리': 'lib',
             
-            // 기능
+            // 기능/UI 요소
+            '로그인을': 'login',
             '로그인': 'login',
+            '회원가입을': 'signup',
             '회원가입': 'signup',
+            '카운터를': 'counter',
             '카운터': 'counter',
-            '데이터베이스': 'database',
+            '모달을': 'modal',
+            '모달': 'modal',
+            '버튼을': 'btn',
+            '버튼': 'btn',
+            '폼을': 'form',
+            '폼': 'form',
+            '테이블을': 'table',
+            '테이블': 'table',
+            
+            // 상태/문제
+            '버그가': 'bug',
+            '버그를': 'bug',
+            '버그': 'bug',
+            '에러가': 'error',
+            '에러를': 'error',
+            '에러': 'error',
+            '문제가': 'issue',
+            '문제를': 'issue',
+            '문제': 'issue',
+            
+            // 성능/품질
+            '성능을': 'perf',
+            '성능': 'perf',
+            '속도를': 'speed',
+            '속도': 'speed',
+            '품질을': 'quality',
+            '품질': 'quality',
+            
+            // 개발 도구
             'API를': 'API',
             'API': 'API',
-            '버그가': 'bug',
-            '버그': 'bug',
-            '성능을': 'performance',
-            '성능': 'performance',
-            
-            // 도구
-            'useState로': 'useState',
+            '엔드포인트를': 'endpoint',
+            '엔드포인트': 'endpoint',
+            '훅을': 'hook',
+            '훅': 'hook',
             'useState를': 'useState',
             'useState': 'useState',
             'useEffect를': 'useEffect',
             'useEffect': 'useEffect',
             
-            // 조사/어미 제거
+            // 복합 표현
+            '리액트 컴포넌트를': 'React comp',
+            '리액트 컴포넌트': 'React comp',
+            '로그인 페이지를': 'login page',
+            '로그인 페이지': 'login page',
+            '회원가입 페이지를': 'signup page',
+            '회원가입 페이지': 'signup page',
+            '유효성 검사를': 'validation',
+            '유효성 검사': 'validation',
+            '반응형으로': 'responsive',
+            '반응형': 'responsive',
+            '다크모드를': 'dark mode',
+            '다크모드': 'dark mode',
+            
+            // 연결어/부사
+            '그리고': '+',
+            '또한': '+',
+            '포함해서': '+',
+            '포함하고': '+',
+            '사용해서': 'w/',
+            '사용하고': 'w/',
+            '활용해서': 'w/',
+            '활용하고': 'w/',
+            
+            // 조사 제거 (짧은 것들)
             '를': '',
             '을': '',
             '가': '',
             '이': '',
             '에': '',
+            '에서': '',
             '으로': '',
             '로': '',
             '와': '',
             '과': '',
             '의': '',
             '도': '',
-            '연결하는': 'connect',
-            '있어요': '',
-            '있는': '',
+            '만': '',
+            '부터': '',
+            '까지': '',
+            
+            // 불필요한 표현
             '해주세요': '',
             '해줘': '',
-            '주세요': ''
+            '주세요': '',
+            '요': '',
+            '좀': '',
+            '한번': '',
+            '잠깐': '',
+            '혹시': '',
+            '만약': '',
+            '일단': '',
+            '우선': '',
+            '먼저': '',
+            '그냥': '',
+            '있는': '',
+            '있어요': '',
+            '있다': '',
+            '같은': '',
+            '같이': '',
+            '처럼': ''
         };
 
-        // 최적화 규칙
+        // 최적화 규칙 (대폭 확장!)
         const optimizations = {
+            // 기본 동작
             'create': '➕',
-            'fix': '🐛',
+            'fix': '🐛', 
             'optimize': '⚡',
+            'analyze': '🔍',
+            'review': '👀',
+            'check': '✅',
+            'deploy': '🚀',
+            'install': '📦',
+            
+            // 기술 용어
             'component': 'comp',
             'function': 'fn',
             'database': 'db',
             'performance': 'perf',
+            'library': 'lib',
+            'checklist': 'list',
+            
+            // 복합 표현
             'React component': 'React comp',
             'login page': 'login',
-            'signup page': 'signup'
+            'signup page': 'signup',
+            'for users': 'for users',
+            'need to check': 'check',
+            'things like': 'like',
+            'review check': 'review',
+            'used properly': 'used ok',
+            'this kind of': 'these',
+            'that kind of': 'those',
+            
+            // 불필요한 단어들
+            'please': '',
+            'could you': '',
+            'can you': '',
+            'I want': '',
+            'I need': '',
+            'just': '',
+            'first': '',
+            'whether': 'if',
+            'exists': '',
+            'like': '',
+            'and': '+',
+            'or': '/',
+            'include': '+',
+            'use': 'w/',
+            'with': 'w/',
+            'number': '#'
         };
 
         // 토큰 계산
@@ -510,7 +633,17 @@
             return Math.round(korean * 2.5 + english * 0.75 + other * 0.5);
         }
 
-        // 번역 함수
+        // 번역 함수 (완전히 개선!)
+        function translate(text) {
+            let result = text;
+            
+            // 1단계: 긴 키워드부터 처리 (순서가 매우 중요!)
+            const sortedKeys = Object.keys(dictionary).sort((a, b) => b.length - a.length);
+            
+            for (const key of sortedKeys) {
+                if (key.trim() && dictionary[key] !== undefined) {
+                    // 정확한 매칭을 위해 단어 경계 고려
+                    const regex = new RegExp(key.replace(/[.*+?^${}()|[\]\\]/g, '\\        // 번역 함수
         function translate(text) {
             let result = text.toLowerCase();
             
@@ -525,9 +658,40 @@
             }
             
             return result.replace(/\s+/g, ' ').trim();
+        }'), 'gi');
+                    result = result.replace(regex, dictionary[key]);
+                }
+            }
+            
+            // 2단계: 숫자 처리
+            result = result.replace(/(\d+)\s*제/g, '$1');
+            result = result.replace(/(\d+)\s*번/g, '$1');
+            result = result.replace(/(\d+)\s*개/g, '$1');
+            
+            // 3단계: 연속된 공백 정리
+            result = result.replace(/\s+/g, ' ');
+            
+            // 4단계: 양쪽 공백 제거
+            result = result.trim();
+            
+            // 5단계: 특수 패턴 후처리
+            result = result.replace(/\s*,\s*/g, ', ');
+            result = result.replace(/\s*\.\s*/g, '. ');
+            
+            return result;
         }
 
-        // 최적화 함수
+        // 최적화 함수 (개선!)
+        function optimize(text) {
+            let result = text;
+            
+            // 1단계: 긴 표현부터 처리
+            const sortedOpts = Object.keys(optimizations).sort((a, b) => b.length - a.length);
+            
+            for (const key of sortedOpts) {
+                if (key.trim() && optimizations[key] !== undefined) {
+                    // 단어 경계를 고려한 정확한 매칭
+                    const regex = new RegExp('\\b' + key.replace(/[.*+?^${}()|[\]\\]/g, '\\        // 최적화 함수
         function optimize(text) {
             let result = text;
             
@@ -539,9 +703,29 @@
             }
             
             return result.replace(/\s+/g, ' ').trim();
+        }') + '\\b', 'gi');
+                    result = result.replace(regex, optimizations[key]);
+                }
+            }
+            
+            // 2단계: 연속된 기호 정리
+            result = result.replace(/\+\s*\+/g, '+');
+            result = result.replace(/\s*\+\s*/g, ' + ');
+            result = result.replace(/\s*\/\s*/g, '/');
+            result = result.replace(/\s*w\/\s*/g, ' w/ ');
+            
+            // 3단계: 불필요한 공백 제거
+            result = result.replace(/\s+/g, ' ');
+            result = result.trim();
+            
+            // 4단계: 시작 부분 정리
+            result = result.replace(/^\+\s*/, '');
+            result = result.replace(/^w\/\s*/, '');
+            
+            return result;
         }
 
-        // 메인 변환 함수
+        // 메인 변환 함수 (2단계로 단순화!)
         function convertText() {
             const input = document.getElementById('commandInput').value.trim();
             
@@ -562,16 +746,12 @@
                     const step1 = input;
                     const tokens1 = calculateTokens(step1);
 
-                    // 2단계: 번역
-                    const step2 = currentLang === 'ko' ? translate(step1) : step1;
+                    // 2단계: Claude 최적화 (한글에서 바로!)
+                    const step2 = currentLang === 'ko' ? optimizeKorean(step1) : optimizeEnglish(step1);
                     const tokens2 = calculateTokens(step2);
 
-                    // 3단계: 최적화
-                    const step3 = optimize(step2);
-                    const tokens3 = calculateTokens(step3);
-
-                    // 결과 표시
-                    showResults(step1, step2, step3, tokens1, tokens2, tokens3);
+                    // 결과 표시 (2단계만)
+                    showResults(step1, step2, tokens1, tokens2);
 
                 } catch (error) {
                     console.error('Error:', error);
@@ -647,7 +827,6 @@
             document.getElementById('convertBtn').textContent = texts.convertBtn;
             document.getElementById('step1Title').textContent = texts.step1Title;
             document.getElementById('step2Title').textContent = texts.step2Title;
-            document.getElementById('step3Title').textContent = texts.step3Title;
             document.getElementById('examplesTitle').textContent = texts.examplesTitle;
             
             // 예시 업데이트
